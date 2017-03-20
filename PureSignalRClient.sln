@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2741B2AA-6437-4C8E-92D5-B5F0327775DA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{46D64CC6-E843-4FC5-AD37-83644E8A82D9}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "PureSignalRClient", "src\PureSignalRClient\PureSignalRClient.xproj", "{E9D1B061-8F58-4B91-9AD7-6DE6A0D3C56C}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "PureSignalRClientTest", "src\PureSignalRClientTest\PureSignalRClientTest.xproj", "{7FD2EC88-6D9F-45B4-960C-240B86058BD3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E9D1B061-8F58-4B91-9AD7-6DE6A0D3C56C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9D1B061-8F58-4B91-9AD7-6DE6A0D3C56C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9D1B061-8F58-4B91-9AD7-6DE6A0D3C56C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9D1B061-8F58-4B91-9AD7-6DE6A0D3C56C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FD2EC88-6D9F-45B4-960C-240B86058BD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FD2EC88-6D9F-45B4-960C-240B86058BD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FD2EC88-6D9F-45B4-960C-240B86058BD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FD2EC88-6D9F-45B4-960C-240B86058BD3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E9D1B061-8F58-4B91-9AD7-6DE6A0D3C56C} = {2741B2AA-6437-4C8E-92D5-B5F0327775DA}
+		{7FD2EC88-6D9F-45B4-960C-240B86058BD3} = {2741B2AA-6437-4C8E-92D5-B5F0327775DA}
+	EndGlobalSection
+EndGlobal
