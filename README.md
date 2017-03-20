@@ -8,6 +8,7 @@
 
 ##### Usage
 * Example Included in project
+
         public static void Main(string[] args)
         {
             var conn = new SignalRWsConnection("https://www.cryptopia.co.nz/signalr", "chatHub", "notificationHub")
