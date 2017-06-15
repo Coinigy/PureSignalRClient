@@ -11,7 +11,7 @@
 
         public static void Main(string[] args)
         {
-            var conn = new SignalRWsConnection("https://www.cryptopia.co.nz/signalr", "chatHub", "notificationHub")
+            var conn = new SignalRWsConnection("https://www.cryptopia.co.nz/signalr", "notificationHub")
             {
                 //Debug = true
             };
@@ -22,7 +22,7 @@
 
             Console.ReadLine();
 
-            Console.WriteLine($"Invocation Id: {conn.InvokeHubMethod("chatHub", "getOnlineCount")}");
+            Console.WriteLine($"Invocation Id: {conn.InvokeHubMethod("notificationHub", "getOnlineCount")}");
             goto READ;
         }
 
