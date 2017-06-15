@@ -130,12 +130,14 @@ namespace PureSignalRClient
                         cobj is double || cobj is decimal || cobj is float)
                         sb.Append(parameters[i]);
                     else if (cobj is bool)
-                        if ((bool) parameters[i])
+                        if ((bool)parameters[i])
                             sb.Append(1);
                         else
                             sb.Append(0);
-                    else
+                    else if (cobj is string)
                         sb.Append($"\"{parameters[i]}\"");
+                    else
+                        sb.Append(JsonConvert.SerializeObject(parameters[i]));
                     if (i < parameters.Length - 1)
                         sb.Append(",");
                 }
