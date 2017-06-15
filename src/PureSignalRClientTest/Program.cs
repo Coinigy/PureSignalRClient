@@ -8,7 +8,7 @@ namespace PureSignalRClientTest
     {
         public static void Main(string[] args)
         {
-            var conn = new Client("https://www.cryptopia.co.nz/signalr", "chatHub", "notificationHub")
+            var conn = new Client("https://www.cryptopia.co.nz/signalr", "notificationHub")
             {
                 //Debug = true
             };
@@ -19,7 +19,7 @@ namespace PureSignalRClientTest
 
             Console.ReadLine();
 
-            Console.WriteLine($"Invocation Id: {conn.InvokeHubMethod("chatHub", "getOnlineCount")}");
+            Console.WriteLine($"Invocation Id: {conn.InvokeHubMethod("notificationHub", "getOnlineCount")}");
             goto READ;
         }
 
