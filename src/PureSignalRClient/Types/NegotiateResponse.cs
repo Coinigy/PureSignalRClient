@@ -1,16 +1,37 @@
-﻿namespace PureSignalRClient.Types
+﻿using System.Runtime.Serialization;
+
+namespace PureSignalR.Types
 {
-    internal class NegotiateResponse
+    public class NegotiateResponse
     {
+		[DataMember(Name = "Url")]
         public string Url { get; set; }
-        public string ConnectionToken { get; set; }
-        public string ConnectionId { get; set; }
-        public double KeepAliveTimeout { get; set; }
-        public double DisconnectTimeout { get; set; }
-        public double ConnectionTimeout { get; set; }
-        public bool TryWebSockets { get; set; }
-        public string ProtocolVersion { get; set; }
-        public double TransportConnectTimeout { get; set; }
-        public double LongPollDelay { get; set; }
+
+	    [DataMember(Name = "ConnectionToken")]
+		public string ConnectionToken { get; set; }
+
+	    [DataMember(Name = "ConnectionId")]
+		public string ConnectionId { get; set; }
+
+	    [DataMember(Name = "KeepAliveTimeout")]
+		public double KeepAliveTimeout { get; set; }
+
+	    [DataMember(Name = "DisconnectTimeout")]
+		public double DisconnectTimeout { get; set; }
+
+	    [DataMember(Name = "ConnectionTimeout")]
+		public double ConnectionTimeout { get; set; }
+
+	    [DataMember(Name = "TryWebSockets")]
+		public bool TryWebSockets { get; set; }
+
+	    [DataMember(Name = "ProtocolVersion")]
+		public string ProtocolVersion { get; set; }
+
+	    [DataMember(Name = "TransportConnectTimeout")]
+		public double TransportConnectTimeout { get; set; }
+
+	    [DataMember(Name = "LongPollDelay")]
+		public double LongPollDelay { get; set; }
     }
 }

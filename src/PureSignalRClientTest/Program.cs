@@ -1,6 +1,8 @@
 ﻿using System;
-using PureSignalRClient;
-using PureSignalRClient.Types;
+using System.IO;
+using System.IO.Compression;
+using PureSignalR;
+using PureSignalR.Types;
 
 namespace PureSignalRClientTest
 {
@@ -8,18 +10,21 @@ namespace PureSignalRClientTest
     {
         public static void Main(string[] args)
         {
-            var conn = new Client("https://www.cryptopia.co.nz/signalr", "notificationHub")
+            var conn = new PureSignalRClient(new PureSignalRClientOptions()
             {
-                //Debug = true
-            };
+                DebugMode = false,
+                Url = "https://socket.bittrex.com/signalr",
+                Hubs = new[] { "c2" }
+            });
             conn.OnNewMessage += Conn_NewMessage;
             conn.Connect();
 
             READ:
 
+            var res = conn.InvokeHubMethod("c2", "subscribeToExchangeDeltas", "BTC-ETH");
+
             Console.ReadLine();
 
-            Console.WriteLine($"Invocation Id: {conn.InvokeHubMethod("notificationHub", "getOnlineCount")}");
             goto READ;
         }
 
@@ -53,7 +58,14 @@ namespace PureSignalRClientTest
                 Console.ResetColor();
                 foreach (var a in msg.A)
                 {
-                    Console.Write($"{a} \r\n");
+	                using (var inputStream = new MemoryStream(Convert.FromBase64String((string)a)))
+	                using (var gZipStream = new DeflateStream(inputStream, CompressionMode.Decompress))
+	                using (var streamReader = new StreamReader(gZipStream))
+	                {
+		                var decompressed = streamReader.ReadToEnd();
+
+		                Console.Write($"{decompressed} \r\n");
+	                }
                 }
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine("---------------- End Of Message ----------------");

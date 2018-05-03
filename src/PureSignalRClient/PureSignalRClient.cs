@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using PureSignalRClient.Types;
+using PureSignalR.Types;
 using PureWebSockets;
+using Utf8Json;
 
-namespace PureSignalRClient
+namespace PureSignalR
 {
-    public class Client : IDisposable
+    public class PureSignalRClient : IDisposable
     {
         private readonly string _rootHost;
         private readonly string _httpHost;
@@ -25,8 +24,11 @@ namespace PureSignalRClient
         private string _lastMessageId;
         private string _groupsToken;
         private readonly string[] _hubs;
+	    private readonly PureSignalRClientOptions _options;
 
-        /// <summary>
+	    public string ConnectionId() => _connectionId;
+
+	    /// <summary>
         ///     Raised when a new message is received
         /// </summary>
         public event MessageReceived OnNewMessage;
@@ -51,33 +53,30 @@ namespace PureSignalRClient
         /// </summary>
         public event Fatality OnFatality;
 
-        /// <summary>
-        ///     Output debug messages
-        /// </summary>
-        public bool Debug { get; set; }
-
-        /// <summary>
-        ///     Creates a new Client
-        /// </summary>
-        /// <param name="url">the http(s) url of the signalr server to connect to (usually ends in /signalr)</param>
-        /// <param name="hubs">the server hubs you wish to subscibe to</param>
-        public Client(string url, params string[] hubs)
+	    /// <summary>
+	    ///     Creates a new Client
+	    /// </summary>
+	    /// <param name="options"></param>
+	    public PureSignalRClient(PureSignalRClientOptions options)
         {
-            _hubs = hubs;
+	        _options = options;
+	        _hubs = options.Hubs;
+			if(_options.Serializer == null)
+				_options.Serializer = new Utf8JsonSerializer();
+		
+            if (!options.Url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("invalid url", options.Url);
 
-            if (!url.ToLower().StartsWith("http"))
-                throw new ArgumentException("invalid url", url);
-
-            if (url.ToLower().StartsWith("https"))
+            if (options.Url.StartsWith("https", StringComparison.OrdinalIgnoreCase))
                 _isSecure = true;
-            var rootHost = url.ToLower().Replace(_isSecure ? "https://" : "http://", "");
+            var rootHost = options.Url.ToLower().Replace(_isSecure ? "https://" : "http://", "");
             if (rootHost.EndsWith("/"))
                 rootHost = rootHost.Substring(0, rootHost.Length - 1);
             _rootHost = rootHost;
             _httpHost = _isSecure ? $"https://{rootHost}" : $"http://{rootHost}";
             _wsHost = _isSecure ? $"wss://{rootHost}" : $"ws://{rootHost}";
 
-            if (Debug)
+            if (options.DebugMode)
                 WriteLine("New SignalRWsConnection Instance Created");
         }
 
@@ -91,23 +90,22 @@ namespace PureSignalRClient
             _disconnectCalled = false;
 
             // get the connection info from the signalr host
-            var connInf = SignalR.Negotiate(_httpHost, _hubs);
+            var connInf = SignalR.Negotiate(_httpHost, _hubs, _options.Serializer);
 
             // we only work with websockets
             if (!connInf.TryWebSockets)
-                throw new WebSocketException(WebSocketError.UnsupportedProtocol,
-                    "WebSocket Connections Not Supported By This Host");
+                throw new WebSocketException(WebSocketError.UnsupportedProtocol, "WebSocket Connections Not Supported By This Host");
 
             _connectionToken = connInf.ConnectionToken;
             _connectionId = connInf.ConnectionId;
 
-            _webSocket = SignalR.Connect(_wsHost, _connectionToken, _hubs);
+            _webSocket = SignalR.Connect(_wsHost, _connectionToken, _hubs, _options);
 
             HookupEvents();
 
             _webSocket.Connect();
 
-            if (Debug)
+            if (_options.DebugMode)
                 WriteLine($"Connect Called, URL: {_rootHost}");
         }
 
@@ -131,15 +129,15 @@ namespace PureSignalRClient
             SignalR.Abort(_httpHost, _connectionToken, _hubs);
             _webSocket?.Disconnect();
 
-            if (Debug)
+            if (_options.DebugMode)
                 WriteLine("Disconnect Called");
         }
 
         private void _webSocket_OnSendFailed(string data, Exception ex)
         {
-            Task.Run(() => { OnSendFailed?.Invoke(data, ex); });
+            Task.Run(() => OnSendFailed?.Invoke(data, ex));
 
-            if (Debug)
+            if (_options.DebugMode)
                 WriteLine($"Send Failed, Data: {data}, Exception: {ex.Message}");
         }
 
@@ -150,7 +148,7 @@ namespace PureSignalRClient
             _connectionMonitor = new Timer(ConnectionMonitorCheck, null, TimeSpan.FromSeconds(30),
                 TimeSpan.FromSeconds(30));
 
-            if (Debug)
+            if (_options.DebugMode)
                 WriteLine("Connection Opened");
         }
 
@@ -159,11 +157,11 @@ namespace PureSignalRClient
             if (_disposedValue || _disconnectCalled) return;
             if (_lastMessageTime.AddSeconds(30) > DateTime.Now) return;
 
-            if (Debug)
+            if (_options.DebugMode)
                 WriteLine("Connection Timeout, Atempting Reconnect");
 
             _webSocket.Dispose(false);
-            _webSocket = SignalR.Reconnect(_wsHost, _connectionToken, _hubs, _lastMessageId, _groupsToken);
+            _webSocket = SignalR.Reconnect(_wsHost, _connectionToken, _hubs, _lastMessageId, _groupsToken, _options);
 
             HookupEvents();
 
@@ -174,15 +172,15 @@ namespace PureSignalRClient
         {
             try
             {
-                if (Debug)
+                if (_options.DebugMode)
                     WriteLine($"New Message, Message: {message}");
 
                 _lastMessageTime = DateTime.Now;
                 // check if this is a keep alive
                 if (message == "{{}}") return;
-                if (message.Trim() == "") return;
+                if (message.Trim().Length == 0) return;
 
-                var msg = JsonConvert.DeserializeObject<WsResponse>(message);
+                var msg = JsonSerializer.Deserialize<WsResponse>(message);
                 if (msg.S != null && msg.S == 1)
                 {
                     // this is an init message lets confirm
@@ -196,9 +194,8 @@ namespace PureSignalRClient
                     _groupsToken = msg.G;
 
                 // invoke the event
-                if (msg.M != null && msg.M.Any() || msg.R != null || !string.IsNullOrEmpty(msg.I) ||
-                    !string.IsNullOrEmpty(msg.C))
-                    Task.Run(() => { OnNewMessage?.Invoke(msg); });
+                if (msg.M?.Count > 0 || msg.R != null || !string.IsNullOrEmpty(msg.I) || !string.IsNullOrEmpty(msg.C))
+                    Task.Run(() => OnNewMessage?.Invoke(msg));
             }
             catch (Exception e)
             {
@@ -208,31 +205,31 @@ namespace PureSignalRClient
 
         private void _webSocket_OnFatality(string reason)
         {
-            Task.Run(() => { OnFatality?.Invoke(reason); });
+            Task.Run(() => OnFatality?.Invoke(reason));
 
-            if (Debug)
+            if (_options.DebugMode)
                 WriteLine($"WebSocket Fatality, Reason: {reason}");
         }
 
         private void _webSocket_OnError(Exception ex)
         {
-            Task.Run(() => { OnError?.Invoke(ex); });
+            Task.Run(() => OnError?.Invoke(ex));
 
-            if (Debug)
+            if (_options.DebugMode)
                 WriteLine($"WebSocket Error, Exception: {ex.Message}");
         }
 
         private void _webSocket_OnData(byte[] data)
         {
-            Task.Run(() => { OnData?.Invoke(data); });
+            Task.Run(() => OnData?.Invoke(data));
 
-            if (Debug)
+            if (_options.DebugMode)
                 WriteLine($"New Data, Data: {Encoding.UTF8.GetString(data)}");
         }
 
         private void _webSocket_OnClosed(WebSocketCloseStatus reason)
         {
-            if (Debug)
+            if (_options.DebugMode)
                 WriteLine($"WebSocket Closed, Reason: {reason}");
 
             // don't do anything, wait for the monitor to pickup the dropped connection and let it decide what to do
@@ -240,9 +237,12 @@ namespace PureSignalRClient
 
         public int InvokeHubMethod(string hubName, string hubMethod, params object[] parameters)
         {
-            if (Debug)
+			if(_webSocket.State != WebSocketState.Open)
+				throw new Exception("WebSocket must be fully open before invoking a method.");
+
+            if (_options.DebugMode)
                 WriteLine($"Invoking Server Hub Method, Name: {hubName}, Method: {hubMethod}");
-            return SignalR.InvokeHubMethod(_webSocket, hubName, hubMethod, parameters);
+            return SignalR.InvokeHubMethod(_webSocket, hubName, hubMethod, _options.Serializer, parameters);
         }
 
         /// <summary>
@@ -257,14 +257,11 @@ namespace PureSignalRClient
         /// </summary>
         /// <param name="data">the data to serialize and send</param>
         /// <returns></returns>
-        public bool Send(object data) => _webSocket.Send(JsonConvert.SerializeObject(data));
+        public bool Send(object data) => _webSocket.Send(_options.Serializer.Serialize(data));
 
-        private void WriteLine(string msg)
-        {
-            Console.WriteLine($"{DateTime.Now} - {msg}");
-        }
+        private static void WriteLine(string msg) => Console.WriteLine($"{DateTime.Now} - {msg}");
 
-        #region IDisposable Support
+	    #region IDisposable Support
 
         private bool _disposedValue; // To detect redundant calls
 

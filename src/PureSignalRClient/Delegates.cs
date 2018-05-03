@@ -1,6 +1,6 @@
-﻿using PureSignalRClient.Types;
+﻿using PureSignalR.Types;
 
-namespace PureSignalRClient
+namespace PureSignalR
 {
     public delegate void MessageReceived(WsResponse data);
 }
