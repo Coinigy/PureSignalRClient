@@ -11,7 +11,7 @@
     <Authors>ByronP</Authors>
     <Company>Coinigy Inc.</Company>
     <Description>A cross platform SignalR WebSocket client library for .NET NetStandard core.</Description>
-    <Title>A cross platform SignalR WebSocket client library for .NET NetStandard core.</Title>
+    <Title>Pure SignalR Client</Title>
     <Copyright>Copyright 2017 2018 Coinigy Inc.</Copyright>
     <PackageTags>signalr, websocket, netstandard, core, client, websockets</PackageTags>
     <PackageReleaseNotes>See git for list of changes.</PackageReleaseNotes>
