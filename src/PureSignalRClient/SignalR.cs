@@ -9,7 +9,7 @@ namespace PureSignalR
 {
     internal static class SignalR
     {
-        internal static NegotiateResponse Negotiate(string host, string[] hubs, ISerializer serializer)
+        internal static NegotiateResponse Negotiate(string host, string[] hubs, ISerializer serializer, bool ignoreCertErrors)
         {
             // Transport: http
             // example which should be url encoded before sending
@@ -29,7 +29,7 @@ namespace PureSignalR
             }
 
 	        sb.Append(WebUtility.UrlEncode("]"));
-            var negresp = HttpRequest.Get(sb.ToString(), 15000, true).Result;
+            var negresp = HttpRequest.Get(sb.ToString(), 15000, ignoreCertErrors, true).Result;
             return serializer.Deserialize<NegotiateResponse>(negresp);
         }
 
@@ -55,7 +55,7 @@ namespace PureSignalR
             return new PureWebSocket(sb.ToString(), socketOptions);
         }
 
-        internal static bool Start(string host, string connectionToken, string[] hubs)
+        internal static bool Start(string host, string connectionToken, string[] hubs, bool ignoreCertErrors)
         {
             // Transport: http
             // example which should be url encoded before sending
@@ -74,7 +74,7 @@ namespace PureSignalR
 
 			sb.Append(WebUtility.UrlEncode("]"));
 
-            return HttpRequest.Get(sb.ToString(), 15000, true).Result.IndexOf("started", StringComparison.OrdinalIgnoreCase) >= 0;
+            return HttpRequest.Get(sb.ToString(), 15000, ignoreCertErrors, true).Result.IndexOf("started", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         internal static PureWebSocket Reconnect(string host, string connectionToken, string[] hubs, string messageId, string groupsToken, IPureWebSocketOptions socketOptions)
@@ -99,10 +99,10 @@ namespace PureSignalR
             return new PureWebSocket(sb.ToString(), socketOptions);
         }
 
-        internal static void Abort(string host, string connectionToken, string[] hubs)
+        internal static void Abort(string host, string connectionToken, string[] hubs, bool ignoreCertErrors)
         {
             // Transport: http
-            // exmaple which should be url encoded before sending
+            // example which should be url encoded before sending
             // abort?transport=longPolling&clientProtocol=1.4&connectionToken=QcnlM&connectionData=[{"name":"chathub"}]
             var sb = new StringBuilder();
 			sb.Append(host).Append("/abort?transport=webSockets&clientProtocol=").Append(WebUtility.UrlEncode("1.4")).Append("&connectionToken=").Append(WebUtility.UrlEncode(connectionToken)).Append("&connectionData==").Append(WebUtility.UrlEncode("["));
@@ -118,13 +118,13 @@ namespace PureSignalR
 
 			sb.Append(WebUtility.UrlEncode("]"));
 
-            HttpRequest.Get(sb.ToString(), 10000, true).Wait(12000);
+            HttpRequest.Get(sb.ToString(), 10000, ignoreCertErrors, true).Wait(12000);
         }
 
         internal static int InvokeHubMethod(PureWebSocket socket, string hubName, string methodName, ISerializer serializer, params object[] parameters)
         {
             // Transport: ws
-            // exmaple which should not be encoded before sending
+            // example which should not be encoded before sending
             // {"H":"chatHub","M":"getOnlineCount","A":[],"I":319104157}
             var msgId = int.Parse(DateTime.Now.ToString("MMddhhmmss"));
             var sb = new StringBuilder();

@@ -90,7 +90,7 @@ namespace PureSignalR
             _disconnectCalled = false;
 
             // get the connection info from the signalr host
-            var connInf = SignalR.Negotiate(_httpHost, _hubs, _options.Serializer);
+            var connInf = SignalR.Negotiate(_httpHost, _hubs, _options.Serializer, _options.IgnoreCertErrors);
 
             // we only work with websockets
             if (!connInf.TryWebSockets)
@@ -126,7 +126,7 @@ namespace PureSignalR
         public void Disconnect()
         {
             _disconnectCalled = true;
-            SignalR.Abort(_httpHost, _connectionToken, _hubs);
+            SignalR.Abort(_httpHost, _connectionToken, _hubs, _options.IgnoreCertErrors);
             _webSocket?.Disconnect();
 
             if (_options.DebugMode)
@@ -158,7 +158,7 @@ namespace PureSignalR
             if (_lastMessageTime.AddSeconds(30) > DateTime.Now) return;
 
             if (_options.DebugMode)
-                WriteLine("Connection Timeout, Atempting Reconnect");
+                WriteLine("Connection Timeout, Attempting Reconnect");
 
             _webSocket.Dispose(false);
             _webSocket = SignalR.Reconnect(_wsHost, _connectionToken, _hubs, _lastMessageId, _groupsToken, _options);
@@ -184,7 +184,7 @@ namespace PureSignalR
                 if (msg.S != null && msg.S == 1)
                 {
                     // this is an init message lets confirm
-                    SignalR.Start(_httpHost, _connectionToken, _hubs);
+                    SignalR.Start(_httpHost, _connectionToken, _hubs, _options.IgnoreCertErrors);
                     return;
                 }
 
