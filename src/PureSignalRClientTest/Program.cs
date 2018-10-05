@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.IO.Compression;
 using PureSignalR;
@@ -14,7 +14,8 @@ namespace PureSignalRClientTest
             {
                 DebugMode = false,
                 Url = "https://socket.bittrex.com/signalr",
-                Hubs = new[] { "c2" }
+                Hubs = new[] { "c2" },
+                IgnoreCertErrors = true
             });
             conn.OnNewMessage += Conn_NewMessage;
             conn.Connect();
