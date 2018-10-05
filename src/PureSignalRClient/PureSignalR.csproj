@@ -20,6 +20,13 @@
     <RepositoryUrl>https://github.com/coinigy/PureSignalRClient</RepositoryUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/Coinigy/PureSignalRClient/master/PWSIcon.ico</PackageIconUrl>
     <Product>Pure SignalR Client</Product>
+    <LangVersion>7.2</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>
