@@ -6,6 +6,7 @@
     <OutputType>Exe</OutputType>
     <PackageId>PureSignalRClientTest</PackageId>
     <LangVersion>7.2</LangVersion>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -4,15 +4,15 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>PureSignalRClient</AssemblyName>
     <PackageId>PureSignalRClient</PackageId>
-    <AssemblyVersion>2.0.1.0</AssemblyVersion>
-    <FileVersion>2.0.1.0</FileVersion>
-    <Version>2.0.1</Version>
+    <AssemblyVersion>2.1.0.0</AssemblyVersion>
+    <FileVersion>2.1.0.0</FileVersion>
+    <Version>2.1.0</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>ByronP</Authors>
     <Company>Coinigy Inc.</Company>
     <Description>A cross platform SignalR WebSocket client library for .NET NetStandard core.</Description>
     <Title>Pure SignalR Client</Title>
-    <Copyright>Copyright 2017 2018 Coinigy Inc.</Copyright>
+    <Copyright>Copyright 2018 Coinigy Inc.</Copyright>
     <PackageTags>signalr, websocket, netstandard, core, client, websockets</PackageTags>
     <PackageReleaseNotes>See git for list of changes.</PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/coinigy/PureSignalRClient</PackageProjectUrl>
