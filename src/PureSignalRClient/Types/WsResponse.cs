@@ -30,7 +30,7 @@ namespace PureSignalR.Types
 		public List<WsDataItem> M { get; set; }
 
 		/// <summary>
-		///     invocation identifier, allows matchingp responses with requests
+		///     invocation identifier, allows matching responses with requests
 		/// </summary>
 		[DataMember(Name = "I")]
 		public string I { get; set; }

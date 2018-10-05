@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.IO.Compression;
 using PureSignalR;
@@ -37,7 +37,7 @@ namespace PureSignalRClientTest
                 Console.ResetColor();
                 Console.Write("- ");
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write($"Invocation Sucedded For Id: {data.I} \r\n");
+                Console.Write($"Invocation Succeeded For Id: {data.I} \r\n");
                 Console.ResetColor();
                 return;
             }
